@@ -1,14 +1,14 @@
 <template>
   <div class="interaction-panel">
-    <!-- Main Split Layout -->
+    <!-- 主分割布局 -->
     <div class="main-split-layout">
-      <!-- LEFT PANEL: Report Style -->
+      <!-- 左侧面板：报告样式 -->
       <div class="left-panel report-style" ref="leftPanel">
         <div v-if="reportOutline" class="report-content-wrapper">
-          <!-- Report Header -->
+          <!-- 报告头部 -->
           <div class="report-header-block">
             <div class="report-meta">
-              <span class="report-tag">Prediction Report</span>
+              <span class="report-tag">预测报告</span>
               <span class="report-id">ID: {{ reportId || 'REF-2024-X92' }}</span>
             </div>
             <h1 class="main-title">{{ reportOutline.title }}</h1>
@@ -16,7 +16,7 @@
             <div class="header-divider"></div>
           </div>
 
-          <!-- Sections List -->
+          <!-- 章节列表 -->
           <div class="sections-list">
             <div 
               v-for="(section, idx) in reportOutline.sections" 
@@ -47,10 +47,10 @@
               </div>
               
               <div class="section-body" v-show="!collapsedSections.has(idx)">
-                <!-- Completed Content -->
+                <!-- 已完成的内容 -->
                 <div v-if="generatedSections[idx + 1]" class="generated-content" v-html="renderMarkdown(generatedSections[idx + 1])"></div>
                 
-                <!-- Loading State -->
+                <!-- 加载状态 -->
                 <div v-else-if="currentSectionIndex === idx + 1" class="loading-state">
                   <div class="loading-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -65,28 +65,28 @@
           </div>
         </div>
 
-        <!-- Waiting State -->
+        <!-- 等待状态 -->
         <div v-if="!reportOutline" class="waiting-placeholder">
           <div class="waiting-animation">
             <div class="waiting-ring"></div>
             <div class="waiting-ring"></div>
             <div class="waiting-ring"></div>
           </div>
-          <span class="waiting-text">Waiting for Report Agent...</span>
+          <span class="waiting-text">等待报告智能体...</span>
         </div>
       </div>
 
-      <!-- RIGHT PANEL: Interaction Interface -->
+      <!-- 右侧面板：交互界面 -->
       <div class="right-panel" ref="rightPanel">
-        <!-- Unified Action Bar - Professional Design -->
+        <!-- 统一操作栏 - 专业设计 -->
         <div class="action-bar">
         <div class="action-bar-header">
           <svg class="action-bar-icon" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5">
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
           </svg>
           <div class="action-bar-text">
-            <span class="action-bar-title">Interactive Tools</span>
-            <span class="action-bar-subtitle mono">{{ profiles.length }} agents available</span>
+            <span class="action-bar-title">交互工具</span>
+            <span class="action-bar-subtitle mono">{{ profiles.length }} 个智能体可用</span>
           </div>
         </div>
           <div class="action-bar-tabs">
@@ -98,7 +98,7 @@
               <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
               </svg>
-              <span>与Report Agent对话</span>
+              <span>与报告智能体对话</span>
             </button>
             <div class="agent-dropdown" v-if="profiles.length > 0">
               <button 
@@ -146,15 +146,15 @@
           </div>
         </div>
 
-        <!-- Chat Mode -->
+        <!-- 聊天模式 -->
         <div v-if="activeTab === 'chat'" class="chat-container">
 
-          <!-- Report Agent Tools Card -->
+          <!-- 报告智能体工具卡片 -->
           <div v-if="chatTarget === 'report_agent'" class="report-agent-tools-card">
             <div class="tools-card-header">
               <div class="tools-card-avatar">R</div>
               <div class="tools-card-info">
-                <div class="tools-card-name">Report Agent - Chat</div>
+                <div class="tools-card-name">报告智能体 - 聊天</div>
                 <div class="tools-card-subtitle">报告生成智能体的快速对话版本，可调用 4 种专业工具，拥有MiroFish的完整记忆</div>
               </div>
               <button class="tools-card-toggle" @click="showToolsDetail = !showToolsDetail">
@@ -216,7 +216,7 @@
             </div>
           </div>
 
-          <!-- Agent Profile Card -->
+          <!-- 智能体个人资料卡片 -->
           <div v-if="chatTarget === 'agent' && selectedAgent" class="agent-profile-card">
             <div class="profile-card-header">
               <div class="profile-card-avatar">{{ (selectedAgent.username || 'A')[0] }}</div>
@@ -241,7 +241,7 @@
             </div>
           </div>
 
-          <!-- Chat Messages -->
+          <!-- 聊天消息 -->
           <div class="chat-messages" ref="chatMessages">
             <div v-if="chatHistory.length === 0" class="chat-empty">
               <div class="empty-icon">
@@ -250,7 +250,7 @@
                 </svg>
               </div>
               <p class="empty-text">
-                {{ chatTarget === 'report_agent' ? '与 Report Agent 对话，深入了解报告内容' : '与模拟个体对话，了解他们的观点' }}
+                {{ chatTarget === 'report_agent' ? '与报告智能体对话，深入了解报告内容' : '与模拟个体对话，了解他们的观点' }}
               </p>
             </div>
             <div 
@@ -266,7 +266,7 @@
               <div class="message-content">
                 <div class="message-header">
                   <span class="sender-name">
-                    {{ msg.role === 'user' ? 'You' : (chatTarget === 'report_agent' ? 'Report Agent' : (selectedAgent?.username || 'Agent')) }}
+                    {{ msg.role === 'user' ? '你' : (chatTarget === 'report_agent' ? '报告智能体' : (selectedAgent?.username || '智能体')) }}
                   </span>
                   <span class="message-time">{{ formatTime(msg.timestamp) }}</span>
                 </div>
@@ -287,7 +287,7 @@
             </div>
           </div>
 
-          <!-- Chat Input -->
+          <!-- 聊天输入 -->
           <div class="chat-input-area">
             <textarea 
               v-model="chatInput"
@@ -311,9 +311,9 @@
           </div>
         </div>
 
-        <!-- Survey Mode -->
+        <!-- 问卷调查模式 -->
         <div v-if="activeTab === 'survey'" class="survey-container">
-          <!-- Survey Setup -->
+          <!-- 问卷设置 -->
           <div class="survey-setup">
             <div class="setup-section">
               <div class="section-header">
@@ -373,7 +373,7 @@
             </button>
           </div>
 
-          <!-- Survey Results -->
+          <!-- 问卷结果 -->
           <div v-if="surveyResults.length > 0" class="survey-results">
             <div class="results-header">
               <span class="results-title">调查结果</span>
@@ -457,11 +457,11 @@ const isSectionCompleted = (sectionIndex) => {
   return !!generatedSections.value[sectionIndex]
 }
 
-// Refs
+// 引用
 const leftPanel = ref(null)
 const rightPanel = ref(null)
 
-// Methods
+// 方法
 const addLog = (msg) => {
   emit('add-log', msg)
 }
@@ -505,7 +505,7 @@ const selectReportAgentChat = () => {
   selectedAgentIndex.value = null
   showAgentDropdown.value = false
   
-  // 恢复 Report Agent 的对话记录
+  // 恢复报告智能体的对话记录
   chatHistory.value = chatHistoryCache.value['report_agent'] || []
 }
 
@@ -533,7 +533,7 @@ const selectAgent = (agent, idx) => {
   chatTarget.value = 'agent'
   showAgentDropdown.value = false
   
-  // 恢复该 Agent 的对话记录
+  // 恢复该智能体的对话记录
   chatHistory.value = chatHistoryCache.value[`agent_${idx}`] || []
   addLog(`选择对话对象: ${agent.username}`)
 }
@@ -610,14 +610,14 @@ const renderMarkdown = (content) => {
   return html
 }
 
-// Chat Methods
+// 聊天方法
 const sendMessage = async () => {
   if (!chatInput.value.trim() || isSending.value) return
   
   const message = chatInput.value.trim()
   chatInput.value = ''
   
-  // Add user message
+  // 添加用户消息
   chatHistory.value.push({
     role: 'user',
     content: message,
@@ -649,12 +649,12 @@ const sendMessage = async () => {
 }
 
 const sendToReportAgent = async (message) => {
-  addLog(`向 Report Agent 发送: ${message.substring(0, 50)}...`)
+  addLog(`向报告智能体发送: ${message.substring(0, 50)}...`)
   
-  // Build chat history for API
+  // 构建聊天历史用于 API 调用
   const historyForApi = chatHistory.value
     .filter(msg => msg.role !== 'user' || msg.content !== message)
-    .slice(-10) // Keep last 10 messages
+    .slice(-10) // 保留最后 10 条消息
     .map(msg => ({
       role: msg.role,
       content: msg.content
@@ -672,7 +672,7 @@ const sendToReportAgent = async (message) => {
       content: res.data.response || res.data.answer || '无响应',
       timestamp: new Date().toISOString()
     })
-    addLog('Report Agent 已回复')
+    addLog('报告智能体已回复')
   } else {
     throw new Error(res.error || '请求失败')
   }
@@ -685,7 +685,7 @@ const sendToAgent = async (message) => {
   
   addLog(`向 ${selectedAgent.value.username} 发送: ${message.substring(0, 50)}...`)
   
-  // Build prompt with chat history
+  // 构建提示词并包含聊天历史
   let prompt = message
   if (chatHistory.value.length > 1) {
     const historyContext = chatHistory.value
@@ -750,7 +750,7 @@ const scrollToBottom = () => {
   })
 }
 
-// Survey Methods
+// 问卷调查方法
 const toggleAgentSelection = (idx) => {
   const newSet = new Set(selectedAgents.value)
   if (newSet.has(idx)) {
@@ -821,7 +821,7 @@ const submitSurvey = async () => {
         
         surveyResultsList.push({
           agent_id: agentIdx,
-          agent_name: agent?.username || `Agent ${agentIdx}`,
+          agent_name: agent?.username || `智能体 ${agentIdx}`,
           profession: agent?.profession,
           question: surveyQuestion.value.trim(),
           answer: responseContent
@@ -840,17 +840,17 @@ const submitSurvey = async () => {
   }
 }
 
-// Load Report Data
+// 加载报告数据
 const loadReportData = async () => {
   if (!props.reportId) return
   
   try {
     addLog(`加载报告数据: ${props.reportId}`)
     
-    // Get report info
+    // 获取报告信息
     const reportRes = await getReport(props.reportId)
     if (reportRes.success && reportRes.data) {
-      // Load agent logs to get report outline and sections
+      // 加载智能体日志以获取报告大纲和章节
       await loadAgentLogs()
     }
   } catch (err) {
@@ -897,7 +897,7 @@ const loadProfiles = async () => {
   }
 }
 
-// Click outside to close dropdown
+// 点击外部关闭下拉菜单
 const handleClickOutside = (e) => {
   const dropdown = document.querySelector('.agent-dropdown')
   if (dropdown && !dropdown.contains(e.target)) {
@@ -905,7 +905,7 @@ const handleClickOutside = (e) => {
   }
 }
 
-// Lifecycle
+// 生命周期
 onMounted(() => {
   addLog('Step5 深度互动初始化')
   loadReportData()

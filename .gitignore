@@ -57,3 +57,5 @@ backend/uploads/
 
 # Docker 数据
 data/
+
+.trae/

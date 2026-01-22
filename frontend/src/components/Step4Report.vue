@@ -1,14 +1,14 @@
 <template>
   <div class="report-panel">
-    <!-- Main Split Layout -->
+    <!-- 主分割布局 -->
     <div class="main-split-layout">
-      <!-- LEFT PANEL: Report Style -->
+      <!-- 左侧面板：报告样式 -->
       <div class="left-panel report-style" ref="leftPanel">
         <div v-if="reportOutline" class="report-content-wrapper">
-          <!-- Report Header -->
+          <!-- 报告头部 -->
           <div class="report-header-block">
             <div class="report-meta">
-              <span class="report-tag">Prediction Report</span>
+              <span class="report-tag">预测报告</span>
               <span class="report-id">ID: {{ reportId || 'REF-2024-X92' }}</span>
             </div>
             <h1 class="main-title">{{ reportOutline.title }}</h1>
@@ -16,7 +16,7 @@
             <div class="header-divider"></div>
           </div>
 
-          <!-- Sections List -->
+          <!-- 章节列表 -->
           <div class="sections-list">
             <div 
               v-for="(section, idx) in reportOutline.sections" 
@@ -47,10 +47,10 @@
               </div>
               
               <div class="section-body" v-show="!collapsedSections.has(idx)">
-                <!-- Completed Content -->
+                <!-- 已完成内容 -->
                 <div v-if="generatedSections[idx + 1]" class="generated-content" v-html="renderMarkdown(generatedSections[idx + 1])"></div>
                 
-                <!-- Loading State -->
+                <!-- 加载状态 -->
                 <div v-else-if="currentSectionIndex === idx + 1" class="loading-state">
                   <div class="loading-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -65,18 +65,18 @@
           </div>
         </div>
 
-        <!-- Waiting State -->
+        <!-- 等待状态 -->
         <div v-if="!reportOutline" class="waiting-placeholder">
           <div class="waiting-animation">
             <div class="waiting-ring"></div>
             <div class="waiting-ring"></div>
             <div class="waiting-ring"></div>
           </div>
-          <span class="waiting-text">Waiting for Report Agent...</span>
+          <span class="waiting-text">等待报告智能体...</span>
         </div>
       </div>
 
-      <!-- RIGHT PANEL: Workflow Timeline -->
+      <!-- 右侧面板：工作流时间轴 -->
       <div class="right-panel" ref="rightPanel">
         <div class="panel-header" :class="`panel-header--${activeStep.status}`" v-if="!isComplete">
           <span class="header-dot" v-if="activeStep.status === 'active'"></span>
@@ -85,19 +85,19 @@
           <span class="header-meta mono" v-if="activeStep.meta">{{ activeStep.meta }}</span>
         </div>
 
-        <!-- Workflow Overview (flat, status-based palette) -->
+        <!-- 工作流概览（扁平化，基于状态的调色板） -->
         <div class="workflow-overview" v-if="agentLogs.length > 0 || reportOutline">
           <div class="workflow-metrics">
             <div class="metric">
-              <span class="metric-label">Sections</span>
+              <span class="metric-label">章节</span>
               <span class="metric-value mono">{{ completedSections }}/{{ totalSections }}</span>
             </div>
             <div class="metric">
-              <span class="metric-label">Elapsed</span>
+              <span class="metric-label">已用时间</span>
               <span class="metric-value mono">{{ formatElapsedTime }}</span>
             </div>
             <div class="metric">
-              <span class="metric-label">Tools</span>
+              <span class="metric-label">工具调用</span>
               <span class="metric-value mono">{{ totalToolCalls }}</span>
             </div>
             <div class="metric metric-right">
@@ -127,7 +127,7 @@
             </div>
           </div>
 
-          <!-- Next Step Button - 在完成后显示 -->
+          <!-- 下一步按钮 - 在完成后显示 -->
           <button v-if="isComplete" class="next-step-btn" @click="goToInteraction">
             <span>进入深度互动</span>
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
@@ -147,46 +147,46 @@
               class="timeline-item"
               :class="getTimelineItemClass(log, idx, displayLogs.length)"
             >
-              <!-- Timeline Connector -->
+              <!-- 时间轴连接器 -->
               <div class="timeline-connector">
                 <div class="connector-dot" :class="getConnectorClass(log, idx, displayLogs.length)"></div>
                 <div class="connector-line" v-if="idx < displayLogs.length - 1"></div>
               </div>
               
-              <!-- Timeline Content -->
+              <!-- 时间轴内容 -->
               <div class="timeline-content">
                 <div class="timeline-header">
                   <span class="action-label">{{ getActionLabel(log.action) }}</span>
                   <span class="action-time">{{ formatTime(log.timestamp) }}</span>
                 </div>
                 
-                <!-- Action Body - Different for each type -->
+                <!-- 动作主体 - 每种类型不同 -->
                 <div class="timeline-body" :class="{ 'collapsed': isLogCollapsed(log) }" @click="toggleLogExpand(log)">
                   
-                  <!-- Report Start -->
+                  <!-- 报告开始 -->
                   <template v-if="log.action === 'report_start'">
                     <div class="info-row">
-                      <span class="info-key">Simulation</span>
+                      <span class="info-key">模拟</span>
                       <span class="info-val mono">{{ log.details?.simulation_id }}</span>
                     </div>
                     <div class="info-row" v-if="log.details?.simulation_requirement">
-                      <span class="info-key">Requirement</span>
+                      <span class="info-key">需求</span>
                       <span class="info-val">{{ log.details.simulation_requirement }}</span>
                     </div>
                   </template>
 
-                  <!-- Planning -->
+                  <!-- 规划 -->
                   <template v-if="log.action === 'planning_start'">
                     <div class="status-message planning">{{ log.details?.message }}</div>
                   </template>
                   <template v-if="log.action === 'planning_complete'">
                     <div class="status-message success">{{ log.details?.message }}</div>
                     <div class="outline-badge" v-if="log.details?.outline">
-                      {{ log.details.outline.sections?.length || 0 }} sections planned
+                      已规划 {{ log.details.outline.sections?.length || 0 }} 个章节
                     </div>
                   </template>
 
-                  <!-- Section Start -->
+                  <!-- 章节开始 -->
                   <template v-if="log.action === 'section_start'">
                     <div class="section-tag">
                       <span class="tag-num">#{{ log.section_index }}</span>
@@ -194,7 +194,7 @@
                     </div>
                   </template>
                   
-                  <!-- Section/Subsection Content Generated (内容生成完成，但整个章节可能还没完成) -->
+                  <!-- 章节/子章节内容生成完成（内容生成完成，但整个章节可能还没完成） -->
                   <template v-if="log.action === 'section_content' || log.action === 'subsection_content'">
                     <div class="section-tag content-ready" :class="{ 'is-subsection': log.action === 'subsection_content' }">
                       <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
@@ -202,56 +202,56 @@
                         <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
                       </svg>
                       <span class="tag-title">{{ log.section_title }}</span>
-                      <span v-if="log.action === 'subsection_content'" class="tag-sub">(subsection)</span>
+                      <span v-if="log.action === 'subsection_content'" class="tag-sub">(子章节)</span>
                     </div>
                   </template>
                   
-                  <!-- Section Complete (完整章节生成完成，含所有子章节) -->
+                  <!-- 章节完成（完整章节生成完成，含所有子章节） -->
                   <template v-if="log.action === 'section_complete'">
                     <div class="section-tag completed">
                       <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
                         <polyline points="20 6 9 17 4 12"></polyline>
                       </svg>
                       <span class="tag-title">{{ log.section_title }}</span>
-                      <span v-if="log.details?.subsection_count > 0" class="tag-sub">(+{{ log.details.subsection_count }} subsections)</span>
+                      <span v-if="log.details?.subsection_count > 0" class="tag-sub">(+{{ log.details.subsection_count }} 个子章节)</span>
                     </div>
                   </template>
 
-                  <!-- Tool Call -->
+                  <!-- 工具调用 -->
                   <template v-if="log.action === 'tool_call'">
                     <div class="tool-badge" :class="'tool-' + getToolColor(log.details?.tool_name)">
-                      <!-- Deep Insight - Lightbulb -->
+                      <!-- 深度洞察 - 灯泡 -->
                       <svg v-if="getToolIcon(log.details?.tool_name) === 'lightbulb'" class="tool-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.5V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.5A7 7 0 0 0 12 2z"></path>
                       </svg>
-                      <!-- Panorama Search - Globe -->
+                      <!-- 全景搜索 - 地球 -->
                       <svg v-else-if="getToolIcon(log.details?.tool_name) === 'globe'" class="tool-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="12" cy="12" r="10"></circle>
                         <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
                       </svg>
-                      <!-- Agent Interview - Users -->
+                      <!-- 智能体访谈 - 用户 -->
                       <svg v-else-if="getToolIcon(log.details?.tool_name) === 'users'" class="tool-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                         <circle cx="9" cy="7" r="4"></circle>
                         <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"></path>
                       </svg>
-                      <!-- Quick Search - Zap -->
+                      <!-- 快速搜索 - 闪电 -->
                       <svg v-else-if="getToolIcon(log.details?.tool_name) === 'zap'" class="tool-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
                         <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
                       </svg>
-                      <!-- Graph Stats - Chart -->
+                      <!-- 图谱统计 - 图表 -->
                       <svg v-else-if="getToolIcon(log.details?.tool_name) === 'chart'" class="tool-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
                         <line x1="18" y1="20" x2="18" y2="10"></line>
                         <line x1="12" y1="20" x2="12" y2="4"></line>
                         <line x1="6" y1="20" x2="6" y2="14"></line>
                       </svg>
-                      <!-- Entity Query - Database -->
+                      <!-- 实体查询 - 数据库 -->
                       <svg v-else-if="getToolIcon(log.details?.tool_name) === 'database'" class="tool-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
                         <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
                         <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
                         <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
                       </svg>
-                      <!-- Default - Tool -->
+                      <!-- 默认 - 工具 -->
                       <svg v-else class="tool-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
                       </svg>
@@ -262,59 +262,59 @@
                     </div>
                   </template>
 
-                  <!-- Tool Result -->
+                  <!-- 工具结果 -->
                   <template v-if="log.action === 'tool_result'">
                     <div class="result-wrapper" :class="'result-' + log.details?.tool_name">
-                      <!-- Hide result-meta for tools that show stats in their own header -->
+                      <!-- 对于在头部显示统计信息的工具，隐藏 result-meta -->
                       <div v-if="!['interview_agents', 'insight_forge', 'panorama_search', 'quick_search'].includes(log.details?.tool_name)" class="result-meta">
                         <span class="result-tool">{{ getToolDisplayName(log.details?.tool_name) }}</span>
                         <span class="result-size">{{ formatResultSize(log.details?.result_length) }}</span>
                       </div>
                       
-                      <!-- Structured Result Display -->
+                      <!-- 结构化结果显示 -->
                       <div v-if="!showRawResult[log.timestamp]" class="result-structured">
-                        <!-- Interview Agents - Special Display -->
+                        <!-- 智能体访谈 - 特殊显示 -->
                         <template v-if="log.details?.tool_name === 'interview_agents'">
                           <InterviewDisplay :result="parseInterview(log.details.result)" :result-length="log.details?.result_length" />
                         </template>
                         
-                        <!-- Insight Forge -->
+                        <!-- 洞察锻造 -->
                         <template v-else-if="log.details?.tool_name === 'insight_forge'">
                           <InsightDisplay :result="parseInsightForge(log.details.result)" :result-length="log.details?.result_length" />
                         </template>
                         
-                        <!-- Panorama Search -->
+                        <!-- 全景搜索 -->
                         <template v-else-if="log.details?.tool_name === 'panorama_search'">
                           <PanoramaDisplay :result="parsePanorama(log.details.result)" :result-length="log.details?.result_length" />
                         </template>
                         
-                        <!-- Quick Search -->
+                        <!-- 快速搜索 -->
                         <template v-else-if="log.details?.tool_name === 'quick_search'">
                           <QuickSearchDisplay :result="parseQuickSearch(log.details.result)" :result-length="log.details?.result_length" />
                         </template>
                         
-                        <!-- Default -->
+                        <!-- 默认 -->
                         <template v-else>
                           <pre class="raw-preview">{{ truncateText(log.details?.result, 300) }}</pre>
                         </template>
                       </div>
                       
-                      <!-- Raw Result -->
+                      <!-- 原始结果 -->
                       <div v-else class="result-raw">
                         <pre>{{ log.details?.result }}</pre>
                       </div>
                     </div>
                   </template>
 
-                  <!-- LLM Response -->
+                  <!-- LLM 响应 -->
                   <template v-if="log.action === 'llm_response'">
                     <div class="llm-meta">
-                      <span class="meta-tag">Iteration {{ log.details?.iteration }}</span>
+                      <span class="meta-tag">迭代 {{ log.details?.iteration }}</span>
                       <span class="meta-tag" :class="{ active: log.details?.has_tool_calls }">
-                        Tools: {{ log.details?.has_tool_calls ? 'Yes' : 'No' }}
+                        工具调用: {{ log.details?.has_tool_calls ? '是' : '否' }}
                       </span>
                       <span class="meta-tag" :class="{ active: log.details?.has_final_answer, 'final-answer': log.details?.has_final_answer }">
-                        Final: {{ log.details?.has_final_answer ? 'Yes' : 'No' }}
+                        最终答案: {{ log.details?.has_final_answer ? '是' : '否' }}
                       </span>
                     </div>
                     <!-- 当是最终答案时，显示特殊提示 -->
@@ -322,44 +322,44 @@
                       <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
                         <polyline points="20 6 9 17 4 12"></polyline>
                       </svg>
-                      <span>Section "{{ log.section_title }}" content generated</span>
+                      <span>章节 "{{ log.section_title }}" 内容已生成</span>
                     </div>
                     <div v-if="expandedLogs.has(log.timestamp) && log.details?.response" class="llm-content">
                       <pre>{{ log.details.response }}</pre>
                     </div>
                   </template>
 
-                  <!-- Report Complete -->
+                  <!-- 报告完成 -->
                   <template v-if="log.action === 'report_complete'">
                     <div class="complete-banner">
                       <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                         <polyline points="22 4 12 14.01 9 11.01"></polyline>
                       </svg>
-                      <span>Report Generation Complete</span>
+                      <span>报告生成完成</span>
                     </div>
                   </template>
                 </div>
 
-                <!-- Footer: Elapsed Time + Action Buttons -->
+                <!-- 底部：已用时间 + 操作按钮 -->
                 <div class="timeline-footer" v-if="log.elapsed_seconds || (log.action === 'tool_call' && log.details?.parameters) || log.action === 'tool_result' || (log.action === 'llm_response' && log.details?.response)">
                   <span v-if="log.elapsed_seconds" class="elapsed-badge">+{{ log.elapsed_seconds.toFixed(1) }}s</span>
                   <span v-else class="elapsed-placeholder"></span>
                   
                   <div class="footer-actions">
-                    <!-- Tool Call: Show/Hide Params -->
+                    <!-- 工具调用：显示/隐藏参数 -->
                     <button v-if="log.action === 'tool_call' && log.details?.parameters" class="action-btn" @click.stop="toggleLogExpand(log)">
-                      {{ expandedLogs.has(log.timestamp) ? 'Hide Params' : 'Show Params' }}
+                      {{ expandedLogs.has(log.timestamp) ? '隐藏参数' : '显示参数' }}
                     </button>
                     
-                    <!-- Tool Result: Raw/Structured View -->
+                    <!-- 工具结果：原始/结构化视图 -->
                     <button v-if="log.action === 'tool_result'" class="action-btn" @click.stop="toggleRawResult(log.timestamp, $event)">
-                      {{ showRawResult[log.timestamp] ? 'Structured View' : 'Raw Output' }}
+                      {{ showRawResult[log.timestamp] ? '结构化视图' : '原始输出' }}
                     </button>
                     
-                    <!-- LLM Response: Show/Hide Response -->
+                    <!-- LLM 响应：显示/隐藏响应 -->
                     <button v-if="log.action === 'llm_response' && log.details?.response" class="action-btn" @click.stop="toggleLogExpand(log)">
-                      {{ expandedLogs.has(log.timestamp) ? 'Hide Response' : 'Show Response' }}
+                      {{ expandedLogs.has(log.timestamp) ? '隐藏响应' : '显示响应' }}
                     </button>
                   </div>
                 </div>
@@ -367,19 +367,19 @@
             </div>
           </TransitionGroup>
 
-          <!-- Empty State -->
+          <!-- 空状态 -->
           <div v-if="agentLogs.length === 0 && !isComplete" class="workflow-empty">
             <div class="empty-pulse"></div>
-            <span>Waiting for agent activity...</span>
+            <span>等待智能体活动...</span>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Bottom Console Logs -->
+    <!-- 底部控制台日志 -->
     <div class="console-logs">
       <div class="log-header">
-        <span class="log-title">CONSOLE OUTPUT</span>
+        <span class="log-title">控制台输出</span>
         <span class="log-id">{{ reportId || 'NO_REPORT' }}</span>
       </div>
       <div class="log-content" ref="logContent">
@@ -971,24 +971,24 @@ const InsightDisplay = {
     }
     
     return () => h('div', { class: 'insight-display' }, [
-      // Header Section - like interview header
+      // 头部区域 - 类似于访谈头部
       h('div', { class: 'insight-header' }, [
         h('div', { class: 'header-main' }, [
-          h('div', { class: 'header-title' }, 'Deep Insight'),
+          h('div', { class: 'header-title' }, '深度洞察'),
           h('div', { class: 'header-stats' }, [
             h('span', { class: 'stat-item' }, [
               h('span', { class: 'stat-value' }, props.result.stats.facts || props.result.facts.length),
-              h('span', { class: 'stat-label' }, 'Facts')
+              h('span', { class: 'stat-label' }, '事实')
             ]),
             h('span', { class: 'stat-divider' }, '/'),
             h('span', { class: 'stat-item' }, [
               h('span', { class: 'stat-value' }, props.result.stats.entities || props.result.entities.length),
-              h('span', { class: 'stat-label' }, 'Entities')
+              h('span', { class: 'stat-label' }, '实体')
             ]),
             h('span', { class: 'stat-divider' }, '/'),
             h('span', { class: 'stat-item' }, [
               h('span', { class: 'stat-value' }, props.result.stats.relationships || props.result.relations.length),
-              h('span', { class: 'stat-label' }, 'Relations')
+              h('span', { class: 'stat-label' }, '关系')
             ]),
             props.resultLength && h('span', { class: 'stat-divider' }, '·'),
             props.resultLength && h('span', { class: 'stat-size' }, formatSize(props.resultLength))
@@ -1001,7 +1001,7 @@ const InsightDisplay = {
         ])
       ]),
       
-      // Tab Navigation
+      // 标签导航
       h('div', { class: 'insight-tabs' }, [
         h('button', {
           class: ['insight-tab', { active: activeTab.value === 'facts' }],
@@ -1029,9 +1029,9 @@ const InsightDisplay = {
         ])
       ]),
       
-      // Tab Content
+      // 标签内容
       h('div', { class: 'insight-content' }, [
-        // Facts Tab
+        // 事实标签页
         activeTab.value === 'facts' && props.result.facts.length > 0 && h('div', { class: 'facts-panel' }, [
           h('div', { class: 'panel-header' }, [
             h('span', { class: 'panel-title' }, '时序记忆中所关联的最新关键事实'),
@@ -1051,7 +1051,7 @@ const InsightDisplay = {
           }, expandedFacts.value ? `收起 ▲` : `展开全部 ${props.result.facts.length} 条 ▼`)
         ]),
         
-        // Entities Tab
+        // 实体标签页
         activeTab.value === 'entities' && props.result.entities.length > 0 && h('div', { class: 'entities-panel' }, [
           h('div', { class: 'panel-header' }, [
             h('span', { class: 'panel-title' }, '核心实体'),
@@ -1072,7 +1072,7 @@ const InsightDisplay = {
           }, expandedEntities.value ? `收起 ▲` : `展开全部 ${props.result.entities.length} 个 ▼`)
         ]),
         
-        // Relations Tab
+        // 关系标签页
         activeTab.value === 'relations' && props.result.relations.length > 0 && h('div', { class: 'relations-panel' }, [
           h('div', { class: 'panel-header' }, [
             h('span', { class: 'panel-title' }, '关系链'),
@@ -1097,7 +1097,7 @@ const InsightDisplay = {
           }, expandedRelations.value ? `收起 ▲` : `展开全部 ${props.result.relations.length} 条 ▼`)
         ]),
         
-        // Sub-queries Tab
+        // 子问题标签页
         activeTab.value === 'subqueries' && props.result.subQueries.length > 0 && h('div', { class: 'subqueries-panel' }, [
           h('div', { class: 'panel-header' }, [
             h('span', { class: 'panel-title' }, '漂移查询生成分析子问题'),
@@ -1113,7 +1113,7 @@ const InsightDisplay = {
           )
         ]),
         
-        // Empty state
+        // 空状态
         activeTab.value === 'facts' && props.result.facts.length === 0 && h('div', { class: 'empty-state' }, '暂无当前关键记忆'),
         activeTab.value === 'entities' && props.result.entities.length === 0 && h('div', { class: 'empty-state' }, '暂无核心实体'),
         activeTab.value === 'relations' && props.result.relations.length === 0 && h('div', { class: 'empty-state' }, '暂无关系链')
@@ -1142,19 +1142,19 @@ const PanoramaDisplay = {
     }
     
     return () => h('div', { class: 'panorama-display' }, [
-      // Header Section
+      // 头部区域
       h('div', { class: 'panorama-header' }, [
         h('div', { class: 'header-main' }, [
-          h('div', { class: 'header-title' }, 'Panorama Search'),
+          h('div', { class: 'header-title' }, '全景搜索'),
           h('div', { class: 'header-stats' }, [
             h('span', { class: 'stat-item' }, [
               h('span', { class: 'stat-value' }, props.result.stats.nodes),
-              h('span', { class: 'stat-label' }, 'Nodes')
+              h('span', { class: 'stat-label' }, '节点')
             ]),
             h('span', { class: 'stat-divider' }, '/'),
             h('span', { class: 'stat-item' }, [
               h('span', { class: 'stat-value' }, props.result.stats.edges),
-              h('span', { class: 'stat-label' }, 'Edges')
+              h('span', { class: 'stat-label' }, '边')
             ]),
             props.resultLength && h('span', { class: 'stat-divider' }, '·'),
             props.resultLength && h('span', { class: 'stat-size' }, formatSize(props.resultLength))
@@ -1163,7 +1163,7 @@ const PanoramaDisplay = {
         props.result.query && h('div', { class: 'header-topic' }, props.result.query)
       ]),
       
-      // Tab Navigation
+      // 标签导航
       h('div', { class: 'panorama-tabs' }, [
         h('button', {
           class: ['panorama-tab', { active: activeTab.value === 'active' }],
@@ -1185,9 +1185,9 @@ const PanoramaDisplay = {
         ])
       ]),
       
-      // Tab Content
+      // 标签内容
       h('div', { class: 'panorama-content' }, [
-        // Active Facts Tab
+        // 当前有效事实标签页
         activeTab.value === 'active' && h('div', { class: 'facts-panel active-facts' }, [
           h('div', { class: 'panel-header' }, [
             h('span', { class: 'panel-title' }, '当前有效记忆'),
@@ -1207,7 +1207,7 @@ const PanoramaDisplay = {
           }, expandedActive.value ? `收起 ▲` : `展开全部 ${props.result.activeFacts.length} 条 ▼`)
         ]),
         
-        // Historical Facts Tab
+        // 历史事实标签页
         activeTab.value === 'historical' && h('div', { class: 'facts-panel historical-facts' }, [
           h('div', { class: 'panel-header' }, [
             h('span', { class: 'panel-title' }, '历史记忆'),
@@ -1239,7 +1239,7 @@ const PanoramaDisplay = {
           }, expandedHistorical.value ? `收起 ▲` : `展开全部 ${props.result.historicalFacts.length} 条 ▼`)
         ]),
         
-        // Entities Tab
+        // 实体标签页
         activeTab.value === 'entities' && h('div', { class: 'entities-panel' }, [
           h('div', { class: 'panel-header' }, [
             h('span', { class: 'panel-title' }, '涉及实体'),
@@ -1267,7 +1267,7 @@ const PanoramaDisplay = {
 const InterviewDisplay = {
   props: ['result', 'resultLength'],
   setup(props) {
-    // Format result size for display
+    // 格式化结果大小用于显示
     const formatSize = (length) => {
       if (!length) return ''
       if (length >= 1000) {
@@ -1276,10 +1276,10 @@ const InterviewDisplay = {
       return `${length} chars`
     }
     
-    // Clean quote text - remove leading list numbers to avoid double numbering
+    // 清理引言文本 - 移除开头的列表编号以避免双重编号
     const cleanQuoteText = (text) => {
       if (!text) return ''
-      // Remove leading patterns like "1. ", "2. ", "1、", "（1）", "(1)" etc.
+      // 移除开头的模式，如 "1. ", "2. ", "1、", "（1）", "(1)" 等
       return text.replace(/^\s*\d+[\.\、\)）]\s*/, '').trim()
     }
     
@@ -1392,19 +1392,19 @@ const InterviewDisplay = {
     }
     
     return () => h('div', { class: 'interview-display' }, [
-      // Header Section
+      // 头部区域
       h('div', { class: 'interview-header' }, [
         h('div', { class: 'header-main' }, [
-          h('div', { class: 'header-title' }, 'Agent Interview'),
+          h('div', { class: 'header-title' }, '智能体访谈'),
           h('div', { class: 'header-stats' }, [
             h('span', { class: 'stat-item' }, [
               h('span', { class: 'stat-value' }, props.result.successCount || props.result.interviews.length),
-              h('span', { class: 'stat-label' }, 'Interviewed')
+              h('span', { class: 'stat-label' }, '已访谈')
             ]),
             props.result.totalCount > 0 && h('span', { class: 'stat-divider' }, '/'),
             props.result.totalCount > 0 && h('span', { class: 'stat-item' }, [
               h('span', { class: 'stat-value' }, props.result.totalCount),
-              h('span', { class: 'stat-label' }, 'Total')
+              h('span', { class: 'stat-label' }, '总数')
             ]),
             props.resultLength && h('span', { class: 'stat-divider' }, '·'),
             props.resultLength && h('span', { class: 'stat-size' }, formatSize(props.resultLength))
@@ -1413,7 +1413,7 @@ const InterviewDisplay = {
         props.result.topic && h('div', { class: 'header-topic' }, props.result.topic)
       ]),
       
-      // Agent Selector Tabs
+      // 智能体选择标签
       props.result.interviews.length > 0 && h('div', { class: 'agent-tabs' }, 
         props.result.interviews.map((interview, i) => h('button', {
           class: ['agent-tab', { active: activeIndex.value === i }],
@@ -1421,33 +1421,33 @@ const InterviewDisplay = {
           onClick: () => { activeIndex.value = i }
         }, [
           h('span', { class: 'tab-avatar' }, interview.name ? interview.name.charAt(0) : (i + 1)),
-          h('span', { class: 'tab-name' }, interview.title || interview.name || `Agent ${i + 1}`)
+          h('span', { class: 'tab-name' }, interview.title || interview.name || `智能体 ${i + 1}`)
         ]))
       ),
       
-      // Active Interview Detail
+      // 当前访谈详情
       props.result.interviews.length > 0 && h('div', { class: 'interview-detail' }, [
-        // Agent Profile Card
+        // 智能体资料卡片
         h('div', { class: 'agent-profile' }, [
           h('div', { class: 'profile-avatar' }, props.result.interviews[activeIndex.value]?.name?.charAt(0) || 'A'),
           h('div', { class: 'profile-info' }, [
-            h('div', { class: 'profile-name' }, props.result.interviews[activeIndex.value]?.name || 'Agent'),
+            h('div', { class: 'profile-name' }, props.result.interviews[activeIndex.value]?.name || '智能体'),
             h('div', { class: 'profile-role' }, props.result.interviews[activeIndex.value]?.role || ''),
             props.result.interviews[activeIndex.value]?.bio && h('div', { class: 'profile-bio' }, props.result.interviews[activeIndex.value].bio)
           ])
         ]),
         
-        // Selection Reason - 选择理由
+        // 选择理由
         props.result.interviews[activeIndex.value]?.selectionReason && h('div', { class: 'selection-reason' }, [
           h('div', { class: 'reason-label' }, '选择理由'),
           h('div', { class: 'reason-content' }, props.result.interviews[activeIndex.value].selectionReason)
         ]),
         
-        // Q&A Conversation Thread - 一问一答样式
+        // 问答对话线程 - 一问一答样式
         h('div', { class: 'qa-thread' }, 
           (props.result.interviews[activeIndex.value]?.questions?.length > 0 
             ? props.result.interviews[activeIndex.value].questions 
-            : [props.result.interviews[activeIndex.value]?.question || 'No question available']
+            : [props.result.interviews[activeIndex.value]?.question || '无可用问题']
           ).map((question, qIdx) => {
             const interview = props.result.interviews[activeIndex.value]
             const currentPlatform = getPlatformTab(activeIndex.value, qIdx)
@@ -1457,21 +1457,21 @@ const InterviewDisplay = {
             const isExpanded = expandedAnswers.value.has(expandKey)
             
             return h('div', { class: 'qa-pair', key: qIdx }, [
-              // Question Block
+              // 问题区块
               h('div', { class: 'qa-question' }, [
                 h('div', { class: 'qa-badge q-badge' }, `Q${qIdx + 1}`),
                 h('div', { class: 'qa-content' }, [
-                  h('div', { class: 'qa-sender' }, 'Interviewer'),
+                  h('div', { class: 'qa-sender' }, '访谈者'),
                   h('div', { class: 'qa-text' }, question)
                 ])
               ]),
               
-              // Answer Block
+              // 回答区块
               answerText && h('div', { class: 'qa-answer' }, [
                 h('div', { class: 'qa-badge a-badge' }, `A${qIdx + 1}`),
                 h('div', { class: 'qa-content' }, [
                   h('div', { class: 'qa-answer-header' }, [
-                    h('div', { class: 'qa-sender' }, interview?.name || 'Agent'),
+                    h('div', { class: 'qa-sender' }, interview?.name || '智能体'),
                     // 双平台切换按钮
                     hasDualPlatform && h('div', { class: 'platform-switch' }, [
                       h('button', {
@@ -1502,20 +1502,20 @@ const InterviewDisplay = {
                       .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
                       .replace(/\n/g, '<br>')
                   }),
-                  // Expand/Collapse Button
+                  // 展开/折叠按钮
                   answerText.length > 400 && h('button', {
                     class: 'expand-answer-btn',
                     onClick: () => toggleAnswer(expandKey)
-                  }, isExpanded ? 'Show Less' : 'Show More')
+                  }, isExpanded ? '收起' : '展开')
                 ])
               ])
             ])
           })
         ),
         
-        // Key Quotes Section
+        // 关键引言区域
         props.result.interviews[activeIndex.value]?.quotes?.length > 0 && h('div', { class: 'quotes-section' }, [
-          h('div', { class: 'quotes-header' }, 'Key Quotes'),
+          h('div', { class: 'quotes-header' }, '关键引言'),
           h('div', { class: 'quotes-list' },
             props.result.interviews[activeIndex.value].quotes.slice(0, 3).map((quote, qi) => {
               const cleanedQuote = cleanQuoteText(quote)
@@ -1530,9 +1530,9 @@ const InterviewDisplay = {
         ])
       ]),
 
-      // Summary Section (Collapsible)
+      // 摘要区域（可折叠）
       props.result.summary && h('div', { class: 'summary-section' }, [
-        h('div', { class: 'summary-header' }, 'Interview Summary'),
+        h('div', { class: 'summary-header' }, '访谈摘要'),
         h('div', { 
           class: 'summary-content',
           innerHTML: renderMarkdown(props.result.summary.length > 500 ? props.result.summary.substring(0, 500) + '...' : props.result.summary)
@@ -1550,12 +1550,12 @@ const QuickSearchDisplay = {
     const expandedFacts = ref(false)
     const INITIAL_SHOW_COUNT = 5
     
-    // Check if there are edges or nodes to show tabs
+    // 检查是否有边或节点以显示标签
     const hasEdges = computed(() => props.result.edges && props.result.edges.length > 0)
     const hasNodes = computed(() => props.result.nodes && props.result.nodes.length > 0)
     const showTabs = computed(() => hasEdges.value || hasNodes.value)
     
-    // Format result size for display
+    // 格式化结果大小用于显示
     const formatSize = (length) => {
       if (!length) return ''
       if (length >= 1000) {
@@ -1565,14 +1565,14 @@ const QuickSearchDisplay = {
     }
     
     return () => h('div', { class: 'quick-search-display' }, [
-      // Header Section
+      // 头部区域
       h('div', { class: 'quicksearch-header' }, [
         h('div', { class: 'header-main' }, [
-          h('div', { class: 'header-title' }, 'Quick Search'),
+          h('div', { class: 'header-title' }, '快速搜索'),
           h('div', { class: 'header-stats' }, [
             h('span', { class: 'stat-item' }, [
               h('span', { class: 'stat-value' }, props.result.count || props.result.facts.length),
-              h('span', { class: 'stat-label' }, 'Results')
+              h('span', { class: 'stat-label' }, '结果')
             ]),
             props.resultLength && h('span', { class: 'stat-divider' }, '·'),
             props.resultLength && h('span', { class: 'stat-size' }, formatSize(props.resultLength))
@@ -1584,7 +1584,7 @@ const QuickSearchDisplay = {
         ])
       ]),
       
-      // Tab Navigation (only show if there are edges or nodes)
+      // 标签导航（仅当有边或节点时显示）
       showTabs.value && h('div', { class: 'quicksearch-tabs' }, [
         h('button', {
           class: ['quicksearch-tab', { active: activeTab.value === 'facts' }],
@@ -1606,9 +1606,9 @@ const QuickSearchDisplay = {
         ])
       ]),
       
-      // Content Area
+      // 内容区域
       h('div', { class: ['quicksearch-content', { 'no-tabs': !showTabs.value }] }, [
-        // Facts (always show if no tabs, or when facts tab is active)
+        // 事实（如果没有标签页，或者事实标签页处于活动状态时总是显示）
         ((!showTabs.value) || activeTab.value === 'facts') && h('div', { class: 'facts-panel' }, [
           !showTabs.value && h('div', { class: 'panel-header' }, [
             h('span', { class: 'panel-title' }, '搜索结果'),
@@ -1628,7 +1628,7 @@ const QuickSearchDisplay = {
           }, expandedFacts.value ? `收起 ▲` : `展开全部 ${props.result.facts.length} 条 ▼`)
         ]),
         
-        // Edges Tab
+        // 边标签页
         activeTab.value === 'edges' && hasEdges.value && h('div', { class: 'edges-panel' }, [
           h('div', { class: 'panel-header' }, [
             h('span', { class: 'panel-title' }, '相关关系'),
@@ -1649,7 +1649,7 @@ const QuickSearchDisplay = {
           )
         ]),
         
-        // Nodes Tab
+        // 节点标签页
         activeTab.value === 'nodes' && hasNodes.value && h('div', { class: 'nodes-panel' }, [
           h('div', { class: 'panel-header' }, [
             h('span', { class: 'panel-title' }, '相关节点'),
@@ -1669,7 +1669,7 @@ const QuickSearchDisplay = {
   }
 }
 
-// Computed
+// 计算属性
 const statusClass = computed(() => {
   if (isComplete.value) return 'completed'
   if (agentLogs.value.length > 0) return 'processing'
@@ -1677,9 +1677,9 @@ const statusClass = computed(() => {
 })
 
 const statusText = computed(() => {
-  if (isComplete.value) return 'Completed'
-  if (agentLogs.value.length > 0) return 'Generating...'
-  return 'Waiting'
+  if (isComplete.value) return '已完成'
+  if (agentLogs.value.length > 0) return '生成中...'
+  return '等待中'
 })
 
 const totalSections = computed(() => {
@@ -1713,7 +1713,7 @@ const displayLogs = computed(() => {
   return agentLogs.value
 })
 
-// Workflow steps overview (status-based, no nested cards)
+// 工作流步骤概览（基于状态，无嵌套卡片）
 const activeSectionIndex = computed(() => {
   if (isComplete.value) return null
   if (currentSectionIndex.value) return currentSectionIndex.value
@@ -1751,17 +1751,17 @@ const activeStep = computed(() => {
 const workflowSteps = computed(() => {
   const steps = []
 
-  // Planning / Outline
+  // 规划 / 大纲
   const planningStatus = isPlanningDone.value ? 'done' : (isPlanningStarted.value ? 'active' : 'todo')
   steps.push({
     key: 'planning',
     noLabel: 'PL',
-    title: 'Planning / Outline',
+    title: '规划 / 大纲',
     status: planningStatus,
-    meta: planningStatus === 'active' ? 'IN PROGRESS' : ''
+    meta: planningStatus === 'active' ? '进行中' : ''
   })
 
-  // Sections (if outline exists)
+  // 章节（如果大纲存在）
   const sections = reportOutline.value?.sections || []
   sections.forEach((section, i) => {
     const idx = i + 1
@@ -1774,24 +1774,24 @@ const workflowSteps = computed(() => {
       noLabel: String(idx).padStart(2, '0'),
       title: section.title,
       status,
-      meta: status === 'active' ? 'IN PROGRESS' : ''
+      meta: status === 'active' ? '进行中' : ''
     })
   })
 
-  // Complete
+  // 完成
   const completeStatus = isComplete.value ? 'done' : (isFinalizing.value ? 'active' : 'todo')
   steps.push({
     key: 'complete',
     noLabel: 'OK',
-    title: 'Complete',
+    title: '完成',
     status: completeStatus,
-    meta: completeStatus === 'active' ? 'FINALIZING' : ''
+    meta: completeStatus === 'active' ? '收尾中' : ''
   })
 
   return steps
 })
 
-// Methods
+// 方法
 const addLog = (msg) => {
   emit('add-log', msg)
 }
@@ -1922,23 +1922,31 @@ const getConnectorClass = (log, idx, total) => {
   return 'dot-muted'
 }
 
+// 获取动作标签
+// 参数：
+//   action: 动作类型
+// 返回：动作标签字符串
 const getActionLabel = (action) => {
   const labels = {
-    'report_start': 'Report Started',
-    'planning_start': 'Planning',
-    'planning_complete': 'Plan Complete',
-    'section_start': 'Section Start',
-    'section_content': 'Content Ready',
-    'subsection_content': 'Subsection Ready',
-    'section_complete': 'Section Done',
-    'tool_call': 'Tool Call',
-    'tool_result': 'Tool Result',
-    'llm_response': 'LLM Response',
-    'report_complete': 'Complete'
+    'report_start': '报告开始',
+    'planning_start': '规划中',
+    'planning_complete': '规划完成',
+    'section_start': '章节开始',
+    'section_content': '内容就绪',
+    'subsection_content': '子章节就绪',
+    'section_complete': '章节完成',
+    'tool_call': '工具调用',
+    'tool_result': '工具结果',
+    'llm_response': 'LLM 响应',
+    'report_complete': '完成'
   }
   return labels[action] || action
 }
 
+// 获取日志级别样式类
+// 参数：
+//   log: 日志内容
+// 返回：样式类字符串
 const getLogLevelClass = (log) => {
   if (log.includes('ERROR') || log.includes('错误')) return 'error'
   if (log.includes('WARNING') || log.includes('警告')) return 'warning'
@@ -1946,10 +1954,11 @@ const getLogLevelClass = (log) => {
   return ''
 }
 
-// Polling
-let agentLogTimer = null
-let consoleLogTimer = null
+// 轮询
+let agentLogTimer = null  // 智能体日志定时器
+let consoleLogTimer = null  // 控制台日志定时器
 
+// 获取智能体日志
 const fetchAgentLog = async () => {
   if (!props.reportId) return
   
@@ -2073,6 +2082,7 @@ const extractFinalContent = (response) => {
   return null
 }
 
+// 获取控制台日志
 const fetchConsoleLog = async () => {
   if (!props.reportId) return
   
@@ -2098,6 +2108,7 @@ const fetchConsoleLog = async () => {
   }
 }
 
+// 开始轮询
 const startPolling = () => {
   if (agentLogTimer || consoleLogTimer) return
   
@@ -2108,6 +2119,7 @@ const startPolling = () => {
   consoleLogTimer = setInterval(fetchConsoleLog, 1500)
 }
 
+// 停止轮询
 const stopPolling = () => {
   if (agentLogTimer) {
     clearInterval(agentLogTimer)
@@ -2119,10 +2131,10 @@ const stopPolling = () => {
   }
 }
 
-// Lifecycle
+// 生命周期
 onMounted(() => {
   if (props.reportId) {
-    addLog(`Report Agent initialized: ${props.reportId}`)
+    addLog(`报告智能体已初始化: ${props.reportId}`)
     startPolling()
   }
 })
@@ -2152,6 +2164,7 @@ watch(() => props.reportId, (newId) => {
 </script>
 
 <style scoped>
+/* 报告面板样式 */
 .report-panel {
   height: 100%;
   display: flex;
@@ -2161,14 +2174,14 @@ watch(() => props.reportId, (newId) => {
   overflow: hidden;
 }
 
-/* Main Split Layout */
+/* 主分割布局 */
 .main-split-layout {
   flex: 1;
   display: flex;
   overflow: hidden;
 }
 
-/* Panel Headers */
+/* 面板头部 */
 .panel-header {
   display: flex;
   align-items: center;
@@ -2186,6 +2199,7 @@ watch(() => props.reportId, (newId) => {
   z-index: 10;
 }
 
+/* 头部圆点 */
 .header-dot {
   width: 8px;
   height: 8px;
@@ -2206,6 +2220,7 @@ watch(() => props.reportId, (newId) => {
   }
 }
 
+/* 头部索引 */
 .header-index {
   font-size: 12px;
   font-weight: 600;
@@ -2214,6 +2229,7 @@ watch(() => props.reportId, (newId) => {
   flex-shrink: 0;
 }
 
+/* 头部标题 */
 .header-title {
   font-size: 13px;
   font-weight: 600;
@@ -2225,6 +2241,7 @@ watch(() => props.reportId, (newId) => {
   letter-spacing: 0;
 }
 
+/* 头部元数据 */
 .header-meta {
   margin-left: auto;
   font-size: 10px;
@@ -2233,7 +2250,7 @@ watch(() => props.reportId, (newId) => {
   flex-shrink: 0;
 }
 
-/* Panel header status variants */
+/* 面板头部状态变体 */
 .panel-header--active {
   background: #FAFAFA;
   border-color: #1F2937;
@@ -2264,7 +2281,7 @@ watch(() => props.reportId, (newId) => {
   color: #9CA3AF;
 }
 
-/* Left Panel - Report Style */
+/* 左侧面板 - 报告样式 */
 .left-panel.report-style {
   width: 45%;
   min-width: 450px;
@@ -2298,7 +2315,7 @@ watch(() => props.reportId, (newId) => {
   background: rgba(0, 0, 0, 0.25);
 }
 
-/* Report Header */
+/* 报告头部 */
 .report-content-wrapper {
   max-width: 800px;
   margin: 0 auto;
@@ -2359,7 +2376,7 @@ watch(() => props.reportId, (newId) => {
   width: 100%;
 }
 
-/* Sections List */
+/* 章节列表 */
 .sections-list {
   display: flex;
   flex-direction: column;
@@ -2390,6 +2407,7 @@ watch(() => props.reportId, (newId) => {
   background-color: #F9FAFB;
 }
 
+/* 折叠图标 */
 .collapse-icon {
   margin-left: auto;
   color: #9CA3AF;
@@ -2402,6 +2420,7 @@ watch(() => props.reportId, (newId) => {
   transform: rotate(-90deg);
 }
 
+/* 章节编号 */
 .section-number {
   font-family: 'JetBrains Mono', monospace;
   font-size: 16px;
@@ -2409,6 +2428,7 @@ watch(() => props.reportId, (newId) => {
   font-weight: 500;
 }
 
+/* 章节标题 */
 .section-title {
   font-family: 'Times New Roman', Times, serif;
   font-size: 24px;
@@ -2418,7 +2438,7 @@ watch(() => props.reportId, (newId) => {
   transition: color 0.3s ease;
 }
 
-/* States */
+/* 状态 */
 .report-section-item.is-pending .section-title {
   color: #D1D5DB;
 }
@@ -2433,7 +2453,7 @@ watch(() => props.reportId, (newId) => {
   overflow: hidden;
 }
 
-/* Generated Content */
+/* 生成的内容 */
 .generated-content {
   font-family: 'Inter', 'Noto Sans SC', system-ui, sans-serif;
   font-size: 14px;
@@ -2494,7 +2514,7 @@ watch(() => props.reportId, (newId) => {
   color: #111827;
 }
 
-/* Loading State */
+/* 加载状态 */
 .loading-state {
   display: flex;
   align-items: center;
@@ -2537,7 +2557,7 @@ watch(() => props.reportId, (newId) => {
   to { transform: rotate(360deg); }
 }
 
-/* Content Styles Override for this view */
+/* 内容样式覆盖（此视图） */
 .generated-content :deep(.md-h2) {
   font-family: 'Times New Roman', Times, serif;
   font-size: 18px;
@@ -2545,7 +2565,7 @@ watch(() => props.reportId, (newId) => {
 }
 
 
-/* Slide Content Transition */
+/* 滑动内容过渡 */
 .slide-content-enter-active {
   transition: opacity 0.3s ease-out;
 }
@@ -2564,7 +2584,7 @@ watch(() => props.reportId, (newId) => {
   opacity: 1;
 }
 
-/* Waiting Placeholder */
+/* 等待占位符 */
 .waiting-placeholder {
   flex: 1;
   display: flex;
@@ -2608,7 +2628,7 @@ watch(() => props.reportId, (newId) => {
   font-size: 14px;
 }
 
-/* Right Panel */
+/* 右侧面板 */
 .right-panel {
   flex: 1;
   background: #FFFFFF;
@@ -2616,7 +2636,7 @@ watch(() => props.reportId, (newId) => {
   display: flex;
   flex-direction: column;
 
-  /* Functional palette (low saturation, status-based) */
+  /* 功能调色板（低饱和度，基于状态） */
   --wf-border: #E5E7EB;
   --wf-divider: #F3F4F6;
 
@@ -2659,7 +2679,7 @@ watch(() => props.reportId, (newId) => {
   font-family: 'JetBrains Mono', monospace;
 }
 
-/* Workflow Overview */
+/* 工作流概览 */
 .workflow-overview {
   padding: 16px 20px 0 20px;
 }
